@@ -17,7 +17,7 @@ export default defineConfig({
         target: 'https://aeasy-movie-server-220072593630.us-central1.run.app',
         changeOrigin: true,
         secure: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        rewrite: (path) => path,
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
             console.log('proxy error', err);
