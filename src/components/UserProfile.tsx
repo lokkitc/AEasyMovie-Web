@@ -82,7 +82,7 @@ const UserProfile = () => {
   return (
     <div className="min-h-screen bg-black py-8">
       <div className="container mx-auto px-4">
-        <div className="bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+        <div className="bg-black rounded-lg shadow-xl overflow-hidden">
           {/* Шапка профиля */}
           <div className="relative h-48">
             {user.header_photo ? (
@@ -92,7 +92,7 @@ const UserProfile = () => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-r from-purple-800 to-purple-500"></div>
+              <div className="w-full h-full bg-gradient-to-r from-purple-950 to-purple-900"></div>
             )}
             <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-gray-800 to-transparent">
               <div className="flex items-end space-x-4">
@@ -116,7 +116,7 @@ const UserProfile = () => {
           </div>
 
           {/* Информация о пользователе */}
-          <div className="p-6">
+          <div className="p-6 bg-black bg-opacity-80">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h2 className="text-xl font-semibold text-white mb-4">Основная информация</h2>
