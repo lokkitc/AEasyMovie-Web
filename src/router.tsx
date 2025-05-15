@@ -10,6 +10,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute'
 import Users from './pages/Users'
 import GoogleCallback from './pages/auth/GoogleCallback'
 import UserProfile from './components/UserProfile'
+import CreateMovie from './components/CreateMovie'
 
 export const router = createBrowserRouter(
   [
@@ -24,6 +25,14 @@ export const router = createBrowserRouter(
         {
           path: 'movies',
           element: <Movies />,
+        },
+        {
+          path: 'movies/create',
+          element: (
+            <ProtectedRoute>
+              <CreateMovie />
+            </ProtectedRoute>
+          ),
         },
         {
           path: 'movies/:id',

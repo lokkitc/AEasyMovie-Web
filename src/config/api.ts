@@ -285,3 +285,113 @@ export const comments = {
     }
   }
 };
+
+export const movies = {
+  createMovie: async (data: {
+    title: string;
+    original_title: string;
+    description: string;
+    poster?: string;
+    backdrop?: string;
+    release_date: string;
+    duration: number;
+    director: string;
+    genres: string[];
+  }) => {
+    try {
+      const response = await api.post('/movies/', data);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error('Требуется авторизация');
+      }
+      if (error.response?.status === 403) {
+        throw new Error('У вас нет прав для создания фильма');
+      }
+      throw new Error(error.response?.data?.detail || 'Ошибка при создании фильма');
+    }
+  },
+
+  getMovies: async () => {
+    try {
+      const response = await api.get('/movies/');
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error('Требуется авторизация');
+      }
+      throw new Error('Ошибка при загрузке фильмов');
+    }
+  },
+
+  getMovie: async (movieId: number) => {
+    try {
+      const response = await api.get(`/movies/${movieId}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        throw new Error('Фильм не найден');
+      }
+      throw new Error('Ошибка при загрузке фильма');
+    }
+  },
+
+  updateMovie: async (movieId: number, data: {
+    title?: string;
+    original_title?: string;
+    description?: string;
+    poster?: string;
+    backdrop?: string;
+    release_date?: string;
+    duration?: number;
+    director?: string;
+    genres?: string[];
+  }) => {
+    try {
+      const response = await api.patch(`/movies/${movieId}`, data);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 403) {
+        throw new Error('У вас нет прав для редактирования этого фильма');
+      }
+      if (error.response?.status === 404) {
+        throw new Error('Фильм не найден');
+      }
+      throw new Error('Ошибка при обновлении фильма');
+    }
+  },
+
+  deleteMovie: async (movieId: number) => {
+    try {
+      const response = await api.delete(`/movies/${movieId}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 403) {
+        throw new Error('У вас нет прав для удаления этого фильма');
+      }
+      if (error.response?.status === 404) {
+        throw new Error('Фильм не найден');
+      }
+      throw new Error('Ошибка при удалении фильма');
+    }
+  },
+
+  uploadMovieImage: async (movieId: number, type: 'poster' | 'backdrop', file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await api.post(`/movies/${movieId}/upload/${type}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 403) {
+        throw new Error('У вас нет прав для загрузки изображений');
+      }
+      throw new Error('Ошибка при загрузке изображения');
+    }
+  }
+};
