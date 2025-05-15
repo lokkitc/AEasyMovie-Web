@@ -44,10 +44,14 @@ interface Comment {
   movie_id: number
   created_at: string
   rating: number
+  parent_comment_id: number | null
   user: {
     username: string
     photo: string
+    is_premium: boolean
+    title: string
   }
+  replies: Comment[]
 }
 
 export default function MovieDetails() {
@@ -627,32 +631,106 @@ export default function MovieDetails() {
         ) : comments?.length === 0 ? (
           <p className="text-white">Пока нет комментариев</p>
         ) : (
-          comments?.map((comment) => (
-            <div key={comment.comment_id} className="border-b border-gray-700 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0">
-              <div className="flex justify-between items-center mb-2">
-                <div className="flex items-center">
-                  <img src={comment.user.photo} alt={comment.user.username} className="w-8 h-8 rounded-full mr-2" />
-                  <span className="font-semibold text-white">{comment.user.username}</span>
+          <div className="space-y-6">
+            {comments?.filter(comment => !comment.parent_comment_id).map((comment) => (
+              <div key={comment.comment_id} className="bg-dark-primary rounded-lg p-4 sm:p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-3">
+                    <img 
+                      src={comment.user.photo} 
+                      alt={comment.user.username} 
+                      className="w-10 h-10 rounded-full"
+                    />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-white">{comment.user.username}</span>
+                        {comment.user.is_premium && (
+                          <span className="px-2 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-xs text-white">
+                            Премиум
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-sm text-gray-400">{comment.user.title}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center">
+                      {[...Array(10)].map((_, i) => (
+                        <FaStar
+                          key={i}
+                          className={`text-sm ${
+                            i < comment.rating ? 'text-yellow-500' : 'text-gray-400'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm text-gray-400">
+                      {new Date(comment.created_at).toLocaleDateString('ru-RU', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center">
-                    {[...Array(10)].map((_, i) => (
-                      <FaStar
-                        key={i}
-                        className={`text-sm ${
-                          i < comment.rating ? 'text-yellow-500' : 'text-gray-400'
-                        }`}
-                      />
+                <p className="text-white mb-4">{comment.content}</p>
+                
+                {/* Вложенные комментарии */}
+                {comment.replies && comment.replies.length > 0 && (
+                  <div className="ml-8 sm:ml-12 space-y-4 mt-4 border-l-2 border-gray-700 pl-4">
+                    {comment.replies.map((reply) => (
+                      <div key={reply.comment_id} className="bg-dark-secondary rounded-lg p-3 sm:p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-2">
+                            <img 
+                              src={reply.user.photo} 
+                              alt={reply.user.username} 
+                              className="w-8 h-8 rounded-full"
+                            />
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-white text-sm">{reply.user.username}</span>
+                                {reply.user.is_premium && (
+                                  <span className="px-1.5 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-xs text-white">
+                                    Премиум
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-xs text-gray-400">{reply.user.title}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center">
+                              {[...Array(10)].map((_, i) => (
+                                <FaStar
+                                  key={i}
+                                  className={`text-xs ${
+                                    i < reply.rating ? 'text-yellow-500' : 'text-gray-400'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-xs text-gray-400">
+                              {new Date(reply.created_at).toLocaleDateString('ru-RU', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-white text-sm">{reply.content}</p>
+                      </div>
                     ))}
                   </div>
-                  <span className="text-sm text-gray-400">
-                  {new Date(comment.created_at).toLocaleDateString()}
-                </span>
-                </div>
+                )}
               </div>
-              <p className="text-white">{comment.content}</p>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
 
