@@ -457,25 +457,128 @@ export default function MovieDetails() {
                 </button>
               )}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              <div>
-                <p className="text-white">Год выпуска</p>
-                <p className="font-semibold text-white">{new Date(movie.release_date).getFullYear()}</p>
-              </div>
-              <div>
-                <p className="text-white">Режиссер</p>
-                <p className="font-semibold text-white">{movie.director}</p>
-              </div>
-              <div>
-                <p className="text-white">Жанры</p>
-                <p className="font-semibold text-white">{movie.genres.join(', ')}</p>
-              </div>
-              <div>
-                <p className="text-white">Рейтинг</p>
-                <p className="font-semibold text-white">{movie.rating}</p>
+            
+            {/* Подробная информация о фильме */}
+            <div className="bg-dark-primary rounded-lg p-6 mb-6">
+              <h2 className="text-xl font-bold text-white mb-4">Информация о фильме</h2>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Основная информация */}
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-gray-400">Год выпуска</p>
+                    <p className="font-semibold text-white">{new Date(movie.release_date).getFullYear()}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Режиссер</p>
+                    <p className="font-semibold text-white">{movie.director}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Рейтинг</p>
+                    <div className="flex items-center gap-2">
+                      <div className="flex">
+                        {[...Array(10)].map((_, i) => (
+                          <FaStar
+                            key={i}
+                            className={`text-sm ${
+                              i < movie.rating ? 'text-yellow-500' : 'text-gray-400'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-white font-semibold">{movie.rating}/10</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Жанры и теги */}
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-gray-400">Жанры</p>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {movie.genres.map((genre, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-blue-600 text-white rounded-full text-sm"
+                        >
+                          {genre}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Дополнительная информация */}
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-gray-400">Дата добавления</p>
+                    <p className="font-semibold text-white">
+                      {new Date(movie.release_date).toLocaleDateString('ru-RU', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">ID фильма</p>
+                    <p className="font-semibold text-white">{movie.movie_id}</p>
+                  </div>
+                </div>
               </div>
             </div>
-            <p className="text-white whitespace-pre-line">{movie.description}</p>
+
+            {/* Описание фильма */}
+            <div className="bg-dark-primary rounded-lg p-6 mb-6">
+              <h2 className="text-xl font-bold text-white mb-4">Описание</h2>
+              <p className="text-white whitespace-pre-line leading-relaxed">{movie.description}</p>
+            </div>
+
+            {/* Ссылки и ресурсы */}
+            <div className="bg-dark-primary rounded-lg p-6">
+              <h2 className="text-xl font-bold text-white mb-4">Ресурсы</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {movie.movie_url && (
+                  <div>
+                    <p className="text-gray-400 mb-2">Ссылка на видео</p>
+                    <a
+                      href={movie.movie_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:text-blue-300 break-all"
+                    >
+                      {movie.movie_url}
+                    </a>
+                  </div>
+                )}
+                {movie.poster && (
+                  <div>
+                    <p className="text-gray-400 mb-2">Постер</p>
+                    <a
+                      href={movie.poster}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:text-blue-300 break-all"
+                    >
+                      {movie.poster}
+                    </a>
+                  </div>
+                )}
+                {movie.backdrop && (
+                  <div>
+                    <p className="text-gray-400 mb-2">Фоновое изображение</p>
+                    <a
+                      href={movie.backdrop}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:text-blue-300 break-all"
+                    >
+                      {movie.backdrop}
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
         {movie.movie_url && (
