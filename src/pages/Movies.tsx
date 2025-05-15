@@ -17,7 +17,7 @@ interface Movie {
 }
 
 interface User {
-  can_moderate: () => boolean;
+  is_moderator: boolean;
 }
 
 type SortOption = 'rating_desc' | 'rating_asc' | 'year_desc' | 'year_asc' | 'title_asc' | 'title_desc'
@@ -38,7 +38,7 @@ export default function Movies() {
 
   const { data: user } = useQuery<User>({
     queryKey: ['user'],
-    queryFn: () => api.get('/auth/profile'),
+    queryFn: () => api.get('/users/me'),
     retry: false
   })
 
@@ -102,7 +102,7 @@ export default function Movies() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-white">Фильмы</h1>
-        {user?.can_moderate() && (
+        {user?.is_moderator && (
           <Link
             to="/movies/create"
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"

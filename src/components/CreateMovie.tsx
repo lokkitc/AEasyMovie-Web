@@ -16,6 +16,10 @@ interface MovieFormData {
   genres: string[];
 }
 
+interface User {
+  is_moderator: boolean;
+}
+
 export default function CreateMovie() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -29,7 +33,7 @@ export default function CreateMovie() {
     genres: []
   });
 
-  const { data: user } = useQuery({
+  const { data: user } = useQuery<User>({
     queryKey: ['user'],
     queryFn: () => auth.getProfile(),
     retry: false
@@ -61,7 +65,7 @@ export default function CreateMovie() {
     }));
   };
 
-  if (!user?.can_moderate()) {
+  if (!user?.is_moderator) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center bg-red-900/50 p-6 rounded-lg">
