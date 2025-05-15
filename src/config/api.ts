@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { jwtDecode } from 'jwt-decode'
 
-export const API_BASE_URL = 'https://aeasy-movie-server-220072593630.us-central1.run.app/api/';
+export const API_BASE_URL = '/api'
 
 export const API_ENDPOINTS = {
   USERS: '/users',
@@ -198,7 +198,7 @@ export const comments = {
     parent_comment_id?: number | null;
   }) => {
     try {
-      const response = await api.post('/comments', data);
+      const response = await api.post('/comments/', data);
       return response.data;
     } catch (error: any) {
       if (error.response?.status === 401) {
@@ -226,6 +226,62 @@ export const comments = {
         throw new Error('Фильм не найден');
       }
       throw new Error('Ошибка при загрузке комментариев');
+    }
+  },
+
+  getComment: async (commentId: number) => {
+    try {
+      const response = await api.get(`/comments/${commentId}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        throw new Error('Комментарий не найден');
+      }
+      throw new Error('Ошибка при загрузке комментария');
+    }
+  },
+
+  updateComment: async (commentId: number, data: {
+    content?: string;
+    rating?: number;
+  }) => {
+    try {
+      const response = await api.patch(`/comments/${commentId}`, data);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 403) {
+        throw new Error('У вас нет прав для редактирования этого комментария');
+      }
+      if (error.response?.status === 404) {
+        throw new Error('Комментарий не найден');
+      }
+      throw new Error('Ошибка при обновлении комментария');
+    }
+  },
+
+  deleteComment: async (commentId: number) => {
+    try {
+      await api.delete(`/comments/${commentId}`);
+    } catch (error: any) {
+      if (error.response?.status === 403) {
+        throw new Error('У вас нет прав для удаления этого комментария');
+      }
+      if (error.response?.status === 404) {
+        throw new Error('Комментарий не найден');
+      }
+      throw new Error('Ошибка при удалении комментария');
+    }
+  },
+
+  getReplies: async (commentId: number) => {
+    try {
+      const response = await api.get(`/comments/${commentId}/replies`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        throw new Error('Комментарий не найден');
+      }
+      throw new Error('Ошибка при загрузке ответов');
     }
   }
 };

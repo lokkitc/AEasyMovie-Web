@@ -191,6 +191,9 @@ export default function MovieDetails() {
       toast.success('Комментарий успешно добавлен')
     },
     onError: (error: any) => {
+      if (error.message === 'Требуется авторизация') {
+        navigate('/login')
+      }
       toast.error(error.message || 'Ошибка при добавлении комментария')
     }
   })
