@@ -12,6 +12,8 @@ interface MovieFormData {
   description: string;
   release_date: string;
   duration: number;
+  poster: string;
+  backdrop: string;
   director: string;
   genres: string[];
 }
@@ -28,6 +30,8 @@ export default function CreateMovie() {
     original_title: '',
     description: '',
     release_date: '',
+    poster: '',
+    backdrop: '',
     duration: 0,
     director: '',
     genres: []
@@ -40,7 +44,14 @@ export default function CreateMovie() {
   });
 
   const createMovieMutation = useMutation({
-    mutationFn: (data: MovieFormData) => movies.createMovie(data),
+    mutationFn: (data: MovieFormData) => {
+      // Преобразуем duration в число перед отправкой
+      const movieData = {
+        ...data,
+        duration: Number(data.duration)
+      };
+      return movies.createMovie(movieData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['movies'] });
       toast.success('Фильм успешно создан');
@@ -62,6 +73,14 @@ export default function CreateMovie() {
       genres: prev.genres.includes(genre)
         ? prev.genres.filter(g => g !== genre)
         : [...prev.genres, genre]
+    }));
+  };
+
+  const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFormData(prev => ({
+      ...prev,
+      duration: value === '' ? 0 : parseInt(value) || 0
     }));
   };
 
@@ -128,11 +147,33 @@ export default function CreateMovie() {
           </div>
 
           <div>
+            <label className="block text-white mb-2">Постер</label>
+            <input
+              type="text"
+              value={formData.poster}
+              onChange={(e) => setFormData(prev => ({ ...prev, poster: e.target.value }))}
+              className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-white mb-2">Бэкграунд ссылка на видео ютуб</label>
+            <input
+              type="text"
+              value={formData.backdrop}
+              onChange={(e) => setFormData(prev => ({ ...prev, backdrop: e.target.value }))}
+              className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
+              required
+            />
+          </div>
+
+          <div>
             <label className="block text-white mb-2">Длительность (в минутах)</label>
             <input
               type="number"
-              value={formData.duration}
-              onChange={(e) => setFormData(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
+              value={formData.duration || ''}
+              onChange={handleDurationChange}
               className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
               min="1"
               required

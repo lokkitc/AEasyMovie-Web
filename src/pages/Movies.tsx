@@ -53,7 +53,11 @@ export default function Movies() {
     queryFn: async () => {
       try {
         const response = await api.get('/users/me')
+        if (response.data.role === "SUPERADMIN"){
+          console.log("SUPERADMIN")
+        }
         console.log('User data:', response.data)
+
         return response.data
       } catch (error: any) {
         if (error.response?.status === 401) {
