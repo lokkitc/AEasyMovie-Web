@@ -17,7 +17,7 @@ interface MovieFormData {
 }
 
 interface User {
-  is_moderator: boolean;
+  role: string;
 }
 
 export default function CreateMovie() {
@@ -65,7 +65,9 @@ export default function CreateMovie() {
     }));
   };
 
-  if (!user?.is_moderator) {
+  const canCreateMovie = user?.role === 'MODERATOR' || user?.role === 'ADMIN' || user?.role === 'SUPERADMIN';
+
+  if (!canCreateMovie) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center bg-red-900/50 p-6 rounded-lg">
