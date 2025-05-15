@@ -93,7 +93,7 @@ export default function EditMovie() {
           ...data,
           duration: Number(data.duration)
         };
-        const response = await api.patch(`/api/movies/${id}`, movieData, {
+        const response = await api.patch(`/movies/${id}`, movieData, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
