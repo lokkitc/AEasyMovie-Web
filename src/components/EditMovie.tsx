@@ -82,12 +82,39 @@ export default function EditMovie() {
   }, [movie]);
 
   const updateMovieMutation = useMutation({
-    mutationFn: (data: MovieFormData) => {
-      const movieData = {
-        ...data,
-        duration: Number(data.duration)
-      };
-      return movies.updateMovie(Number(id), movieData);
+    mutationFn: async (data: MovieFormData) => {
+      try {
+        const token = localStorage.getItem('token')
+        if (!token) {
+          navigate('/login')
+          throw new Error('Требуется авторизация')
+        }
+        const movieData = {
+          ...data,
+          duration: Number(data.duration)
+        };
+        const response = await api.patch(`/api/movies/${id}`, movieData, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          withCredentials: true
+        });
+        return response.data;
+      } catch (error: any) {
+        if (error.response?.status === 401) {
+          navigate('/login')
+          throw new Error('Требуется авторизация')
+        }
+        if (error.response?.status === 403) {
+          throw new Error('У вас нет прав для редактирования этого фильма')
+        }
+        if (error.response?.status === 404) {
+          throw new Error('Фильм не найден')
+        }
+        throw new Error(error.response?.data?.detail || 'Ошибка при обновлении фильма')
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['movie', id] });
