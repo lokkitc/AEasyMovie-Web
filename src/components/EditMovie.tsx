@@ -93,27 +93,34 @@ export default function EditMovie() {
           ...data,
           duration: Number(data.duration)
         };
-        const response = await api.patch(`/movies/${id}`, movieData, {
+        const response = await fetch(`/api/movies/${id}`, {
+          method: 'PATCH',
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
             'Accept': 'application/json',
           },
-          withCredentials: true
+          credentials: 'include',
+          body: JSON.stringify(movieData)
         });
-        return response.data;
+        
+        if (!response.ok) {
+          if (response.status === 401) {
+            navigate('/login')
+            throw new Error('Требуется авторизация')
+          }
+          if (response.status === 403) {
+            throw new Error('У вас нет прав для редактирования этого фильма')
+          }
+          if (response.status === 404) {
+            throw new Error('Фильм не найден')
+          }
+          throw new Error('Ошибка при обновлении фильма')
+        }
+        
+        return response.json();
       } catch (error: any) {
-        if (error.response?.status === 401) {
-          navigate('/login')
-          throw new Error('Требуется авторизация')
-        }
-        if (error.response?.status === 403) {
-          throw new Error('У вас нет прав для редактирования этого фильма')
-        }
-        if (error.response?.status === 404) {
-          throw new Error('Фильм не найден')
-        }
-        throw new Error(error.response?.data?.detail || 'Ошибка при обновлении фильма')
+        throw new Error(error.message || 'Ошибка при обновлении фильма')
       }
     },
     onSuccess: () => {
