@@ -93,7 +93,7 @@ export default function EditMovie() {
           ...data,
           duration: Number(data.duration)
         };
-        const response = await api.patch(`/movies/${id}`, movieData, {
+        const response = await api.patch(`/api/movies/${id}`, movieData, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ export default function EditMovie() {
         const formData = new FormData();
         formData.append('file', file);
         
-        const response = await api.post(`/movies/${id}/upload/${type}`, formData, {
+        const response = await api.post(`/api/movies/${id}/upload/${type}`, formData, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
