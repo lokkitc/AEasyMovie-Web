@@ -11,6 +11,7 @@ import Users from './pages/Users'
 import GoogleCallback from './pages/auth/GoogleCallback'
 import UserProfile from './components/UserProfile'
 import CreateMovie from './components/CreateMovie'
+import EditMovie from './components/EditMovie'
 
 export const router = createBrowserRouter(
   [
@@ -31,6 +32,14 @@ export const router = createBrowserRouter(
           element: (
             <ProtectedRoute>
               <CreateMovie />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: 'movies/:id/edit',
+          element: (
+            <ProtectedRoute>
+              <EditMovie />
             </ProtectedRoute>
           ),
         },
