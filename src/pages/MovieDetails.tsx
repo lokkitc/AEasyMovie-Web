@@ -6,7 +6,7 @@ import {
 import Player from '@vimeo/player'
 import ReactPlayer from 'react-player'
 import { auth } from '../config/api'
-import { FaLock, FaCoins, FaCrown, FaStar } from 'react-icons/fa'
+import { FaLock, FaCoins, FaCrown, FaStar, FaEdit } from 'react-icons/fa'
 import { toast } from 'react-hot-toast'
 import { API_BASE_URL } from '@/config/api'
 
@@ -53,6 +53,12 @@ interface Comment {
     title: string
   }
   replies: Comment[]
+}
+
+interface User {
+  role: string;
+  is_premium: boolean;
+  money: number;
 }
 
 export default function MovieDetails() {
@@ -148,11 +154,13 @@ export default function MovieDetails() {
     retry: false
   })
 
-  const { data: user } = useQuery({
+  const { data: user } = useQuery<User>({
     queryKey: ['user'],
     queryFn: () => auth.getProfile(),
     retry: false
   });
+
+  const canEditMovie = user?.role === 'MODERATOR' || user?.role === 'ADMIN' || user?.role === 'SUPERADMIN';
 
   const purchaseMutation = useMutation({
     mutationFn: async (episodeId: number) => {
@@ -437,7 +445,18 @@ export default function MovieDetails() {
             />
           )}
           <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-white">{movie.title}</h1>
+            <div className="flex justify-between items-start mb-4">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">{movie.title}</h1>
+              {canEditMovie && (
+                <button
+                  onClick={() => navigate(`/movies/${id}/edit`)}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                  <FaEdit />
+                  <span>Редактировать</span>
+                </button>
+              )}
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <div>
                 <p className="text-white">Год выпуска</p>

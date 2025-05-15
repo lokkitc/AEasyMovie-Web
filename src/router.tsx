@@ -36,16 +36,16 @@ export const router = createBrowserRouter(
           ),
         },
         {
+          path: 'movies/:id',
+          element: <MovieDetails />,
+        },
+        {
           path: 'movies/:id/edit',
           element: (
             <ProtectedRoute>
               <EditMovie />
             </ProtectedRoute>
           ),
-        },
-        {
-          path: 'movies/:id',
-          element: <MovieDetails />,
         },
         {
           path: 'login',

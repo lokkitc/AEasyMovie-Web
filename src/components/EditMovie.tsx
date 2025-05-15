@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { movies, auth } from '@/config/api';
+import { movies } from '@/config/api';
 import { toast } from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
+import { auth } from '@/config/api';
 
 interface MovieFormData {
   title: string;
@@ -14,14 +15,24 @@ interface MovieFormData {
   backdrop: string;
   director: string;
   genres: string[];
-}
-
-interface Movie extends MovieFormData {
-  id: number;
+  movie_url?: string;
 }
 
 interface User {
   role: string;
+}
+
+interface Movie {
+  title: string;
+  original_title: string;
+  description: string;
+  release_date: string;
+  duration: number;
+  poster: string;
+  backdrop: string;
+  director: string;
+  genres: string[];
+  movie_url?: string;
 }
 
 export default function EditMovie() {
@@ -37,7 +48,8 @@ export default function EditMovie() {
     backdrop: '',
     duration: 0,
     director: '',
-    genres: []
+    genres: [],
+    movie_url: ''
   });
 
   const { data: user } = useQuery<User>({
@@ -46,10 +58,9 @@ export default function EditMovie() {
     retry: false
   });
 
-  const { data: movie, isLoading: movieLoading } = useQuery<Movie>({
+  const { data: movie, isLoading } = useQuery<Movie>({
     queryKey: ['movie', id],
-    queryFn: () => movies.getMovie(Number(id)),
-    retry: false
+    queryFn: () => movies.getMovie(Number(id))
   });
 
   useEffect(() => {
@@ -58,12 +69,13 @@ export default function EditMovie() {
         title: movie.title,
         original_title: movie.original_title,
         description: movie.description,
-        release_date: movie.release_date,
-        poster: movie.poster || '',
-        backdrop: movie.backdrop || '',
+        release_date: new Date(movie.release_date).toISOString().split('T')[0],
+        poster: movie.poster,
+        backdrop: movie.backdrop,
         duration: movie.duration,
         director: movie.director,
-        genres: movie.genres
+        genres: movie.genres,
+        movie_url: movie.movie_url || ''
       });
     }
   }, [movie]);
@@ -122,12 +134,12 @@ export default function EditMovie() {
     );
   }
 
-  if (movieLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-white">Загрузка фильма...</p>
+          <p className="text-white">Загрузка данных фильма...</p>
         </div>
       </div>
     );
@@ -201,6 +213,16 @@ export default function EditMovie() {
               onChange={(e) => setFormData(prev => ({ ...prev, backdrop: e.target.value }))}
               className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
               required
+            />
+          </div>
+
+          <div>
+            <label className="block text-white mb-2">Ссылка на фильм</label>
+            <input
+              type="text"
+              value={formData.movie_url}
+              onChange={(e) => setFormData(prev => ({ ...prev, movie_url: e.target.value }))}
+              className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
             />
           </div>
 
