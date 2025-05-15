@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { api } from '@/config/api'
 import { useState } from 'react'
 import { FaSort, FaFilter, FaStar, FaPlus } from 'react-icons/fa'
+import { useNavigate } from 'react-router-dom'
 
 interface Movie {
   movie_id: number
@@ -23,6 +24,7 @@ interface User {
 type SortOption = 'rating_desc' | 'rating_asc' | 'year_desc' | 'year_asc' | 'title_asc' | 'title_desc'
 
 export default function Movies() {
+  const navigate = useNavigate();
   const [sortBy, setSortBy] = useState<SortOption>('rating_desc')
   const [selectedGenres, setSelectedGenres] = useState<string[]>([])
   const [minRating, setMinRating] = useState<number>(0)
@@ -31,33 +33,57 @@ export default function Movies() {
   const { data: moviesList, isLoading, error } = useQuery<Movie[]>({
     queryKey: ['movies'],
     queryFn: async () => {
-      const response = await api.get('/movies/')
-      return response.data
+      try {
+        const response = await api.get('/movies/')
+        return response.data
+      } catch (error: any) {
+        if (error.response?.status === 401) {
+          navigate('/login')
+          throw new Error('Требуется авторизация')
+        }
+        throw error
+      }
     },
+    retry: false
   })
 
   const { data: user } = useQuery<User>({
     queryKey: ['user'],
-    queryFn: () => api.get('/users/me'),
+    queryFn: async () => {
+      try {
+        const response = await api.get('/users/me')
+        return response.data
+      } catch (error: any) {
+        if (error.response?.status === 401) {
+          navigate('/login')
+          throw new Error('Требуется авторизация')
+        }
+        throw error
+      }
+    },
     retry: false
   })
 
   // Получаем уникальные жанры из всех фильмов
-  const allGenres = Array.from(new Set(moviesList?.flatMap(movie => movie.genres) || []))
+  const allGenres = Array.from(new Set(moviesList?.flatMap(movie => movie?.genres || []) || []))
 
   // Фильтрация и сортировка фильмов
   const filteredAndSortedMovies = moviesList?.filter(movie => {
+    if (!movie) return false;
+    
     const movieYear = new Date(movie.release_date).getFullYear()
     
     // Проверка жанров: фильм должен содержать ВСЕ выбранные жанры
     const matchesGenres = selectedGenres.length === 0 || 
-      selectedGenres.every(genre => movie.genres.includes(genre))
+      selectedGenres.every(genre => movie.genres?.includes(genre))
     
     const matchesRating = movie.rating >= minRating
     const matchesYear = movieYear >= yearRange[0] && movieYear <= yearRange[1]
     
     return matchesGenres && matchesRating && matchesYear
   }).sort((a, b) => {
+    if (!a || !b) return 0;
+    
     switch (sortBy) {
       case 'rating_desc':
         return b.rating - a.rating
@@ -118,27 +144,29 @@ export default function Movies() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredAndSortedMovies.map((movie) => (
-            <Link
-              key={movie.movie_id}
-              to={`/movies/${movie.movie_id}`}
-              className="bg-dark-secondary rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
-            >
-              <div className="aspect-[2/3] relative">
-                <img
-                  src={movie.poster}
-                  alt={movie.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-4">
-                <h2 className="text-lg font-semibold text-white mb-2">{movie.title}</h2>
-                <p className="text-gray-400 text-sm line-clamp-2">{movie.description}</p>
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-yellow-500">{movie.rating.toFixed(1)}</span>
-                  <span className="text-gray-400 text-sm">{new Date(movie.release_date).getFullYear()}</span>
+            movie && (
+              <Link
+                key={movie.movie_id}
+                to={`/movies/${movie.movie_id}`}
+                className="bg-dark-secondary rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+              >
+                <div className="aspect-[2/3] relative">
+                  <img
+                    src={movie.poster}
+                    alt={movie.title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-              </div>
-            </Link>
+                <div className="p-4">
+                  <h2 className="text-lg font-semibold text-white mb-2">{movie.title}</h2>
+                  <p className="text-gray-400 text-sm line-clamp-2">{movie.description}</p>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-yellow-500">{movie.rating.toFixed(1)}</span>
+                    <span className="text-gray-400 text-sm">{new Date(movie.release_date).getFullYear()}</span>
+                  </div>
+                </div>
+              </Link>
+            )
           ))}
         </div>
       )}
