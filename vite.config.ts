@@ -16,6 +16,8 @@ export default defineConfig({
       '/api': {
         target: 'https://aeasy-movie-server-220072593630.us-central1.run.app/api',
         changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
       },
     },
   },
