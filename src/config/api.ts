@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { jwtDecode } from 'jwt-decode'
 
-export const API_BASE_URL = 'https://aeasy-movie-server-220072593630.us-central1.run.app/api'
+export const API_BASE_URL = '/api'
 
 export const API_ENDPOINTS = {
   USERS: '/users',
