@@ -346,6 +346,7 @@ export const movies = {
     duration?: number;
     director?: string;
     genres?: string[];
+    movie_url?: string;
   }) => {
     try {
       const response = await api.patch(`/movies/${movieId}`, data);
