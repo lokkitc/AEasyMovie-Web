@@ -210,23 +210,45 @@ export default function EditMovie() {
           <div>
             <label className="block text-white mb-2">Постер</label>
             <input
-              type="text"
-              value={formData.poster}
-              onChange={(e) => setFormData(prev => ({ ...prev, poster: e.target.value }))}
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  uploadImageMutation.mutate({ file, type: 'poster' });
+                }
+              }}
               className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
-              required
             />
+            {formData.poster && (
+              <img
+                src={formData.poster}
+                alt="Poster preview"
+                className="mt-2 w-32 h-48 object-cover rounded"
+              />
+            )}
           </div>
 
           <div>
-            <label className="block text-white mb-2">Бэкграунд ссылка на видео ютуб</label>
+            <label className="block text-white mb-2">Бэкграунд</label>
             <input
-              type="text"
-              value={formData.backdrop}
-              onChange={(e) => setFormData(prev => ({ ...prev, backdrop: e.target.value }))}
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  uploadImageMutation.mutate({ file, type: 'backdrop' });
+                }
+              }}
               className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
-              required
             />
+            {formData.backdrop && (
+              <img
+                src={formData.backdrop}
+                alt="Backdrop preview"
+                className="mt-2 w-full h-32 object-cover rounded"
+              />
+            )}
           </div>
 
           <div>
