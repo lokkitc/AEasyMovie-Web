@@ -554,7 +554,7 @@ export default function MovieDetails() {
           </h3>
           <div className="aspect-video bg-black rounded-lg overflow-hidden">
             <video
-              src={`${API_BASE_URL}${selectedEpisodeDetail.video_file}`}
+              src={selectedEpisodeDetail.video_file}
               controls
               className="w-full h-full"
               onError={(e) => {
