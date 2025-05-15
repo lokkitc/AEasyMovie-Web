@@ -170,7 +170,7 @@ export default function Profile() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-500"></div>
+              <div className="w-full h-full bg-gradient-to-r from-purple-500 to-purple-700"></div>
             )}
             <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
                  onClick={handleHeaderClick}>
@@ -192,7 +192,7 @@ export default function Profile() {
                     </div>
                   </div>
                 ) : (
-                  <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-blue-500 flex items-center justify-center text-white text-2xl sm:text-4xl border-4 border-gray-800 cursor-pointer"
+                  <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-purple-500 flex items-center justify-center text-white text-2xl sm:text-4xl border-4 border-gray-800 cursor-pointer"
                        onClick={handleAvatarClick}>
                     {user.username[0].toUpperCase()}
                   </div>
@@ -210,7 +210,7 @@ export default function Profile() {
             <div className="flex justify-end mb-4">
               <button
                 onClick={() => setIsEditing(!isEditing)}
-                className="px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                className="px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors"
               >
                 {isEditing ? 'Отмена' : 'Редактировать'}
               </button>

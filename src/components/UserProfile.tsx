@@ -36,7 +36,7 @@ const UserProfile = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
           <p className="text-white">Загрузка профиля...</p>
         </div>
       </div>
@@ -54,7 +54,7 @@ const UserProfile = () => {
           <p className="text-red-200">{error}</p>
           <button
             onClick={() => navigate('/users')}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+            className="mt-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors"
           >
             Вернуться к списку пользователей
           </button>
@@ -70,7 +70,7 @@ const UserProfile = () => {
           <p className="text-white text-xl">Пользователь не найден</p>
           <button
             onClick={() => navigate('/users')}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            className="mt-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors"
           >
             Вернуться к списку пользователей
           </button>
