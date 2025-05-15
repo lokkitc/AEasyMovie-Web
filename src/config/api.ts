@@ -189,3 +189,43 @@ export const users = {
     }
   }
 }
+
+export const comments = {
+  createComment: async (data: {
+    content: string;
+    rating: number;
+    movie_id: number;
+    parent_comment_id?: number | null;
+  }) => {
+    try {
+      const response = await api.post('/comments', data);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error('Требуется авторизация');
+      }
+      if (error.response?.status === 403) {
+        throw new Error('У вас нет прав для создания комментария');
+      }
+      if (error.response?.status === 404) {
+        throw new Error('Фильм не найден');
+      }
+      throw new Error(error.response?.data?.detail || 'Ошибка при создании комментария');
+    }
+  },
+
+  getComments: async (movieId: number) => {
+    try {
+      const response = await api.get(`/comments/movie/${movieId}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error('Требуется авторизация');
+      }
+      if (error.response?.status === 404) {
+        throw new Error('Фильм не найден');
+      }
+      throw new Error('Ошибка при загрузке комментариев');
+    }
+  }
+};

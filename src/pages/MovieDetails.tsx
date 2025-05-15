@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { api } from '@/config/api'
-import { useEffect, useRef, useState } from 'react'
+import { api, comments as commentsService } from '@/config/api'
+import {
+   useEffect, useRef, useState } from 'react'
 import Player from '@vimeo/player'
 import ReactPlayer from 'react-player'
 import { auth } from '../config/api'
@@ -141,22 +142,10 @@ export default function MovieDetails() {
   const { data: comments, isLoading: commentsLoading, error: commentsError } = useQuery<Comment[]>({
     queryKey: ['comments', id],
     queryFn: async () => {
-      try {
-        const token = localStorage.getItem('token')
-        if (!token) {
-          navigate('/login')
-          throw new Error('Требуется авторизация')
-        }
-        const response = await api.get(`/comments/movie/${id}`)
-        return response.data
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          navigate('/login')
-          throw new Error('Требуется авторизация')
-        }
-        throw new Error('Ошибка при загрузке комментариев')
-      }
+      const response = await commentsService.getComments(Number(id));
+      return response;
     },
+    retry: false
   })
 
   const { data: user } = useQuery({
@@ -184,42 +173,25 @@ export default function MovieDetails() {
 
   const createCommentMutation = useMutation({
     mutationFn: async () => {
-      console.log('Отправка комментария:', {
+      if (!newComment.trim()) {
+        throw new Error('Комментарий не может быть пустым')
+      }
+      
+      return commentsService.createComment({
         content: newComment,
         rating: rating,
         movie_id: Number(id),
         parent_comment_id: null
       })
-      
-      try {
-        const response = await api.post('/comments', {
-          content: newComment,
-          rating: rating,
-          movie_id: Number(id),
-          parent_comment_id: null
-        })
-        console.log('Ответ сервера:', response.data)
-        return response.data
-      } catch (error: any) {
-        console.error('Полная ошибка:', error)
-        console.error('Детали ошибки:', {
-          status: error.response?.status,
-          data: error.response?.data,
-          headers: error.response?.headers
-        })
-        throw error
-      }
     },
     onSuccess: () => {
-      console.log('Комментарий успешно добавлен')
       queryClient.invalidateQueries({ queryKey: ['comments', id] })
       setNewComment('')
       setRating(5)
       toast.success('Комментарий успешно добавлен')
     },
     onError: (error: any) => {
-      console.error('Ошибка при создании комментария:', error)
-      toast.error(error.response?.data?.detail || 'Ошибка при добавлении комментария')
+      toast.error(error.message || 'Ошибка при добавлении комментария')
     }
   })
 
