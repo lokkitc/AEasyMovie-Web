@@ -4,6 +4,7 @@ import { movies } from '@/config/api';
 import { toast } from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import { auth } from '@/config/api';
+import { api } from '@/config/api';
 
 interface MovieFormData {
   title: string;
@@ -89,13 +90,25 @@ export default function EditMovie() {
       return movies.updateMovie(Number(id), movieData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['movies'] });
       queryClient.invalidateQueries({ queryKey: ['movie', id] });
       toast.success('Фильм успешно обновлен');
       navigate(`/movies/${id}`);
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Ошибка при обновлении фильма');
+    }
+  });
+
+  const uploadImageMutation = useMutation({
+    mutationFn: async ({ file, type }: { file: File; type: 'poster' | 'backdrop' }) => {
+      return movies.uploadMovieImage(Number(id), type, file);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['movie', id] });
+      toast.success('Изображение успешно загружено');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Ошибка при загрузке изображения');
     }
   });
 

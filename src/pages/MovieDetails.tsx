@@ -637,7 +637,7 @@ export default function MovieDetails() {
                     />
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-white">{comment.user.username}</span>
+                  <span className="font-semibold text-white">{comment.user.username}</span>
                         {comment.user.is_premium && (
                           <span className="px-2 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-xs text-white">
                             Премиум
@@ -646,19 +646,19 @@ export default function MovieDetails() {
                       </div>
                       <span className="text-sm text-gray-400">{comment.user.title}</span>
                     </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center">
+                    {[...Array(10)].map((_, i) => (
+                      <FaStar
+                        key={i}
+                        className={`text-sm ${
+                          i < comment.rating ? 'text-yellow-500' : 'text-gray-400'
+                        }`}
+                      />
+                    ))}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center">
-                      {[...Array(10)].map((_, i) => (
-                        <FaStar
-                          key={i}
-                          className={`text-sm ${
-                            i < comment.rating ? 'text-yellow-500' : 'text-gray-400'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm text-gray-400">
+                  <span className="text-sm text-gray-400">
                       {new Date(comment.created_at).toLocaleDateString('ru-RU', {
                         day: 'numeric',
                         month: 'long',
@@ -666,7 +666,7 @@ export default function MovieDetails() {
                         hour: '2-digit',
                         minute: '2-digit'
                       })}
-                    </span>
+                </span>
                   </div>
                 </div>
                 <p className="text-white mb-4">{comment.content}</p>
@@ -724,7 +724,7 @@ export default function MovieDetails() {
                 )}
               </div>
             ))}
-          </div>
+            </div>
         )}
       </div>
 
