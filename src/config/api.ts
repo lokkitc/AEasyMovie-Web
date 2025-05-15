@@ -12,10 +12,7 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
-  httpsAgent: new (require('https').Agent)({
-    rejectUnauthorized: false
-  })
+  withCredentials: true
 })
 
 interface JwtPayload {
