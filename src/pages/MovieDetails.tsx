@@ -407,10 +407,10 @@ export default function MovieDetails() {
   }
 
   return (
-    <div className="mx-auto">
-      <div className="bg-transparent dark:bg-dark-transparent rounded-lg shadow-md p-8">
+    <div className="mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="bg-transparent dark:bg-dark-transparent rounded-lg shadow-md p-4 sm:p-8">
         {movie.backdrop && (
-          <div className="relative h-96 -mx-8 -mt-8 mb-8 overflow-hidden">
+          <div className="relative h-48 sm:h-64 md:h-80 lg:h-96 -mx-4 sm:-mx-8 -mt-4 sm:-mt-8 mb-4 sm:mb-8 overflow-hidden">
             {backdropType === 'vimeo' && (
               <div
                 id="vimeo-backdrop"
@@ -449,17 +449,17 @@ export default function MovieDetails() {
             <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black" />
           </div>
         )}
-        <div className="flex gap-8 -mt-32 relative z-10">
+        <div className="flex flex-col md:flex-row gap-4 sm:gap-8 -mt-16 sm:-mt-32 relative z-10">
           {movie.poster && (
             <img
               src={movie.poster}
               alt={movie.title}
-              className="w-72 h-108 object-cover rounded-lg shadow-md"
+              className="w-full md:w-72 h-auto md:h-108 object-cover rounded-lg shadow-md"
             />
           )}
           <div className="flex-1">
-            <h1 className="text-3xl font-bold mb-4 text-white">{movie.title}</h1>
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-white">{movie.title}</h1>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <div>
                 <p className="text-white">Год выпуска</p>
                 <p className="font-semibold text-white">{new Date(movie.release_date).getFullYear()}</p>
@@ -497,7 +497,7 @@ export default function MovieDetails() {
         )}
       </div>
           <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-6 text-white">Эпизоды</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-6 text-white">Эпизоды</h2>
         {episodesLoading ? (
           <div className="text-center text-white">Загрузка эпизодов...</div>
         ) : episodesError ? (
@@ -505,7 +505,7 @@ export default function MovieDetails() {
         ) : episodes?.length === 0 ? (
           <div className="text-center text-white">Эпизоды отсутствуют</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {episodes?.map((episode) => (
               <div
                 key={episode.episode_id}
@@ -576,14 +576,14 @@ export default function MovieDetails() {
         </div>
       )}
 
-      <div className="bg-dark-secondary rounded-lg shadow-md p-8 mt-8">
-        <h2 className="text-2xl font-bold mb-6 text-white">Комментарии</h2>
+      <div className="bg-dark-secondary rounded-lg shadow-md p-4 sm:p-8 mt-8">
+        <h2 className="text-xl sm:text-2xl font-bold mb-6 text-white">Комментарии</h2>
         
         {/* Форма добавления комментария */}
         <form onSubmit={handleSubmitComment} className="mb-8">
           <div className="mb-4">
             <label className="block text-white mb-2">Ваша оценка</label>
-            <div className="flex gap-1">
+            <div className="flex flex-wrap gap-1">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
                 <button
                   key={star}

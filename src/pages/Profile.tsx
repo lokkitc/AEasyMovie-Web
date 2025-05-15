@@ -158,15 +158,15 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-black py-8">
+    <div className="min-h-screen bg-black py-4 sm:py-8">
       <div className="container mx-auto px-4">
         <div className="bg-gray-800 rounded-lg shadow-xl overflow-hidden">
           {/* Шапка профиля */}
-          <div className="relative h-48">
+          <div className="relative h-32 sm:h-48">
             {user.header_photo ? (
-            <img
-              src={user.header_photo}
-              alt="Header"
+              <img
+                src={user.header_photo}
+                alt="Header"
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -174,43 +174,43 @@ export default function Profile() {
             )}
             <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
                  onClick={handleHeaderClick}>
-              <span className="text-white">Изменить заголовок</span>
+              <span className="text-white text-sm sm:text-base">Изменить заголовок</span>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-gray-800 to-transparent">
-              <div className="flex items-end space-x-4">
+            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 bg-gradient-to-t from-gray-800 to-transparent">
+              <div className="flex flex-col sm:flex-row items-center sm:items-end space-y-4 sm:space-y-0 sm:space-x-4">
                 {user.photo ? (
-            <div className="relative group">
-            <img
-              src={user.photo}
-              alt={user.username}
-                      className="w-24 h-24 rounded-full border-4 border-gray-800 cursor-pointer"
-                onClick={handleAvatarClick}
-              />
+                  <div className="relative group">
+                    <img
+                      src={user.photo}
+                      alt={user.username}
+                      className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-4 border-gray-800 cursor-pointer"
+                      onClick={handleAvatarClick}
+                    />
                     <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full flex items-center justify-center cursor-pointer"
                          onClick={handleAvatarClick}>
-                      <span className="text-white text-sm">Изменить фото</span>
+                      <span className="text-white text-xs sm:text-sm">Изменить фото</span>
                     </div>
                   </div>
                 ) : (
-                  <div className="w-24 h-24 rounded-full bg-blue-500 flex items-center justify-center text-white text-4xl border-4 border-gray-800 cursor-pointer"
+                  <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-blue-500 flex items-center justify-center text-white text-2xl sm:text-4xl border-4 border-gray-800 cursor-pointer"
                        onClick={handleAvatarClick}>
                     {user.username[0].toUpperCase()}
                   </div>
                 )}
-                <div>
-                  <h1 className="text-2xl font-bold text-white">{user.username}</h1>
-                  <p className="text-gray-300">{user.title}</p>
+                <div className="text-center sm:text-left">
+                  <h1 className="text-xl sm:text-2xl font-bold text-white">{user.username}</h1>
+                  <p className="text-gray-300 text-sm sm:text-base">{user.title}</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Информация о пользователе */}
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             <div className="flex justify-end mb-4">
               <button
                 onClick={() => setIsEditing(!isEditing)}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                className="px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
               >
                 {isEditing ? 'Отмена' : 'Редактировать'}
               </button>
@@ -218,66 +218,66 @@ export default function Profile() {
 
             {isEditing ? (
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div>
                     <label className="block text-gray-400 mb-1">Имя</label>
-                  <input
-                    type="text"
-                    name="name"
-                    defaultValue={user.name}
-                    onChange={handleInputChange}
-                    className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
-                  />
-                </div>
-                <div>
+                    <input
+                      type="text"
+                      name="name"
+                      defaultValue={user.name}
+                      onChange={handleInputChange}
+                      className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
+                    />
+                  </div>
+                  <div>
                     <label className="block text-gray-400 mb-1">Фамилия</label>
-                  <input
-                    type="text"
-                    name="surname"
-                    defaultValue={user.surname}
-                    onChange={handleInputChange}
-                    className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
-                  />
-                </div>
-                <div>
+                    <input
+                      type="text"
+                      name="surname"
+                      defaultValue={user.surname}
+                      onChange={handleInputChange}
+                      className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
+                    />
+                  </div>
+                  <div>
                     <label className="block text-gray-400 mb-1">Имя пользователя</label>
-                  <input
-                    type="text"
-                    name="username"
-                    defaultValue={user.username}
-                    onChange={handleInputChange}
-                    className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
-                  />
-                </div>
-                <div>
+                    <input
+                      type="text"
+                      name="username"
+                      defaultValue={user.username}
+                      onChange={handleInputChange}
+                      className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
+                    />
+                  </div>
+                  <div>
                     <label className="block text-gray-400 mb-1">Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    defaultValue={user.email}
-                    onChange={handleInputChange}
-                    className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
-                  />
-                </div>
-                <div>
+                    <input
+                      type="email"
+                      name="email"
+                      defaultValue={user.email}
+                      onChange={handleInputChange}
+                      className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
+                    />
+                  </div>
+                  <div>
                     <label className="block text-gray-400 mb-1">Местоположение</label>
-                  <input
-                    type="text"
-                    name="location"
-                    defaultValue={user.location}
-                    onChange={handleInputChange}
-                    className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
-                  />
-                </div>
-                <div>
+                    <input
+                      type="text"
+                      name="location"
+                      defaultValue={user.location}
+                      onChange={handleInputChange}
+                      className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
+                    />
+                  </div>
+                  <div>
                     <label className="block text-gray-400 mb-1">Возраст</label>
-                  <input
-                    type="number"
-                    name="age"
-                    defaultValue={user.age}
-                    onChange={handleInputChange}
-                    className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
-                  />
+                    <input
+                      type="number"
+                      name="age"
+                      defaultValue={user.age}
+                      onChange={handleInputChange}
+                      className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
+                    />
                   </div>
                 </div>
                 <div>
@@ -299,9 +299,9 @@ export default function Profile() {
                 </button>
               </form>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
-                  <h2 className="text-xl font-semibold text-white mb-4">Основная информация</h2>
+                  <h2 className="text-lg sm:text-xl font-semibold text-white mb-4">Основная информация</h2>
                   <div className="space-y-3">
                     <div>
                       <p className="text-gray-400">Имя</p>
@@ -368,10 +368,10 @@ export default function Profile() {
                     )}
                   </div>
                 </div>
-                  </div>
-                )}
+              </div>
+            )}
 
-                {user.about && (
+            {user.about && (
               <div className="mt-6">
                 <h2 className="text-xl font-semibold text-white mb-4">О себе</h2>
                 <p className="text-gray-300">{user.about}</p>

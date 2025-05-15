@@ -57,34 +57,34 @@ export const UsersList = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-6 text-white">Пользователи</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="container mx-auto px-4 py-4 sm:py-8">
+      <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-white">Пользователи</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {users.map((user, index) => (
           <div
             key={user.user_id ? `user-${user.user_id}` : `user-${index}`}
-            className="bg-gray-800 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+            className="bg-gray-800 rounded-lg p-4 sm:p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
             onClick={() => handleUserClick(user.user_id)}
           >
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3 sm:space-x-4">
               {user.photo ? (
                 <img
                   key={user.user_id ? `photo-${user.user_id}` : `photo-${index}`}
                   src={user.photo}
                   alt={user.username}
-                  className="w-12 h-12 rounded-full"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full"
                 />
               ) : (
                 <div 
                   key={user.user_id ? `avatar-placeholder-${user.user_id}` : `avatar-placeholder-${index}`}
-                  className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white text-xl"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-500 flex items-center justify-center text-white text-lg sm:text-xl"
                 >
                   {user.username[0].toUpperCase()}
                 </div>
               )}
               <div key={user.user_id ? `user-info-${user.user_id}` : `user-info-${index}`}>
-                <h3 className="text-lg font-semibold text-white">{user.username}</h3>
-                <p className="text-gray-400">{user.email}</p>
+                <h3 className="text-base sm:text-lg font-semibold text-white">{user.username}</h3>
+                <p className="text-gray-400 text-sm sm:text-base">{user.email}</p>
               </div>
             </div>
           </div>
@@ -92,23 +92,23 @@ export const UsersList = () => {
       </div>
 
       {totalPages > 1 && (
-        <div className="flex justify-center mt-8 space-x-2">
+        <div className="flex justify-center mt-6 sm:mt-8 space-x-2">
           <button
             key="prev-button"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="px-4 py-2 bg-gray-700 text-white rounded disabled:opacity-50 hover:bg-gray-600 transition-colors"
+            className="px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base bg-gray-700 text-white rounded disabled:opacity-50 hover:bg-gray-600 transition-colors"
           >
             Назад
           </button>
-          <span key="page-info" className="px-4 py-2 text-white">
+          <span key="page-info" className="px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base text-white">
             Страница {page} из {totalPages}
           </span>
           <button
             key="next-button"
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="px-4 py-2 bg-gray-700 text-white rounded disabled:opacity-50 hover:bg-gray-600 transition-colors"
+            className="px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base bg-gray-700 text-white rounded disabled:opacity-50 hover:bg-gray-600 transition-colors"
           >
             Вперед
           </button>
