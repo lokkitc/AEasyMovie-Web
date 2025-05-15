@@ -558,8 +558,18 @@ export default function MovieDetails() {
               controls
               className="w-full h-full"
               onError={(e) => {
-                console.error('Video error:', e)
-                toast.error('Ошибка загрузки видео')
+                console.error('Video error details:', {
+                  error: e,
+                  videoUrl: selectedEpisodeDetail.video_file,
+                  episode: selectedEpisodeDetail
+                });
+                toast.error('Ошибка загрузки видео. Проверьте консоль для деталей.');
+              }}
+              onLoadStart={() => {
+                console.log('Video loading started:', selectedEpisodeDetail.video_file);
+              }}
+              onLoadedData={() => {
+                console.log('Video loaded successfully');
               }}
             />
           </div>
