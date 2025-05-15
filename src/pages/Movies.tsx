@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { api } from '@/config/api'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FaSort, FaFilter, FaStar, FaPlus } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 
@@ -53,6 +53,7 @@ export default function Movies() {
     queryFn: async () => {
       try {
         const response = await api.get('/users/me')
+        console.log('User data:', response.data)
         return response.data
       } catch (error: any) {
         if (error.response?.status === 401) {
@@ -67,6 +68,13 @@ export default function Movies() {
 
   // Проверка прав на создание фильма
   const canCreateMovie = user?.role === 'MODERATOR' || user?.role === 'ADMIN' || user?.role === 'SUPERADMIN'
+  
+  // Добавляем эффект для логирования
+  useEffect(() => {
+    console.log('Current user:', user)
+    console.log('Can create movie:', canCreateMovie)
+    console.log('User role:', user?.role)
+  }, [user, canCreateMovie])
 
   // Получаем уникальные жанры из всех фильмов
   const allGenres = Array.from(new Set(moviesList?.flatMap(movie => movie?.genres || []) || []))
