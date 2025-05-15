@@ -80,7 +80,7 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 py-8">
+    <div className="min-h-screen bg-black py-8">
       <div className="container mx-auto px-4">
         <div className="bg-gray-800 rounded-lg shadow-xl overflow-hidden">
           {/* Шапка профиля */}
@@ -92,7 +92,7 @@ const UserProfile = () => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-r from-white to-purple-500"></div>
+              <div className="w-full h-full bg-gradient-to-r from-purple-800 to-purple-500"></div>
             )}
             <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-gray-800 to-transparent">
               <div className="flex items-end space-x-4">
