@@ -83,38 +83,11 @@ export default function EditMovie() {
 
   const updateMovieMutation = useMutation({
     mutationFn: async (data: MovieFormData) => {
-      try {
-        const token = localStorage.getItem('token')
-        if (!token) {
-          navigate('/login')
-          throw new Error('Требуется авторизация')
-        }
-        const movieData = {
-          ...data,
-          duration: Number(data.duration)
-        };
-        const response = await api.patch(`/movies/${id}`, movieData, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          withCredentials: true
-        });
-        return response.data;
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          navigate('/login')
-          throw new Error('Требуется авторизация')
-        }
-        if (error.response?.status === 403) {
-          throw new Error('У вас нет прав для редактирования этого фильма')
-        }
-        if (error.response?.status === 404) {
-          throw new Error('Фильм не найден')
-        }
-        throw new Error(error.response?.data?.detail || 'Ошибка при обновлении фильма')
-      }
+      const movieData = {
+        ...data,
+        duration: Number(data.duration)
+      };
+      return movies.updateMovie(Number(id), movieData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['movie', id] });
@@ -128,34 +101,7 @@ export default function EditMovie() {
 
   const uploadImageMutation = useMutation({
     mutationFn: async ({ file, type }: { file: File; type: 'poster' | 'backdrop' }) => {
-      try {
-        const token = localStorage.getItem('token')
-        if (!token) {
-          navigate('/login')
-          throw new Error('Требуется авторизация')
-        }
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        const response = await api.post(`/movies/${id}/upload/${type}`, formData, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-            'Accept': 'application/json',
-          },
-          withCredentials: true
-        });
-        return response.data;
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          navigate('/login')
-          throw new Error('Требуется авторизация')
-        }
-        if (error.response?.status === 403) {
-          throw new Error('У вас нет прав для загрузки изображений')
-        }
-        throw new Error(error.response?.data?.detail || 'Ошибка при загрузке изображения')
-      }
+      return movies.uploadMovieImage(Number(id), type, file);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['movie', id] });
