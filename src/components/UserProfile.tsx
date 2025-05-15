@@ -92,7 +92,7 @@ const UserProfile = () => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-500"></div>
+              <div className="w-full h-full bg-gradient-to-r from-white to-purple-500"></div>
             )}
             <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-gray-800 to-transparent">
               <div className="flex items-end space-x-4">
@@ -103,7 +103,7 @@ const UserProfile = () => {
                     className="w-24 h-24 rounded-full border-4 border-gray-800"
                   />
                 ) : (
-                  <div className="w-24 h-24 rounded-full bg-blue-500 flex items-center justify-center text-white text-4xl border-4 border-gray-800">
+                  <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center text-white text-4xl border-4 border-gray-800">
                     {user.username[0].toUpperCase()}
                   </div>
                 )}
