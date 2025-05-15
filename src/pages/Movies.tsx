@@ -18,6 +18,7 @@ interface Movie {
 }
 
 interface User {
+  role: string;
   is_moderator: boolean;
 }
 
@@ -63,6 +64,9 @@ export default function Movies() {
     },
     retry: false
   })
+
+  // Проверка прав на создание фильма
+  const canCreateMovie = user?.role === 'MODERATOR' || user?.role === 'ADMIN' || user?.role === 'SUPERADMIN'
 
   // Получаем уникальные жанры из всех фильмов
   const allGenres = Array.from(new Set(moviesList?.flatMap(movie => movie?.genres || []) || []))
@@ -128,7 +132,7 @@ export default function Movies() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-white">Фильмы</h1>
-        {user?.is_moderator && (
+        {canCreateMovie && (
           <Link
             to="/movies/create"
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
@@ -139,140 +143,141 @@ export default function Movies() {
         )}
       </div>
 
-      {!filteredAndSortedMovies || filteredAndSortedMovies.length === 0 ? (
-        <div className="text-center text-white">Фильмы не найдены</div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredAndSortedMovies.map((movie) => (
-            movie && (
-              <Link
-                key={movie.movie_id}
-                to={`/movies/${movie.movie_id}`}
-                className="bg-dark-secondary rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Панель фильтров */}
+        <div className="w-full lg:w-80 bg-dark-secondary p-6 rounded-lg h-fit">
+          <div className="space-y-6">
+            {/* Сортировка */}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <FaSort />
+                Сортировка
+              </h3>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
               >
-                <div className="aspect-[2/3] relative">
-                  <img
-                    src={movie.poster}
-                    alt={movie.title}
-                    className="w-full h-full object-cover"
+                <option value="rating_desc">По рейтингу (убыв.)</option>
+                <option value="rating_asc">По рейтингу (возр.)</option>
+                <option value="year_desc">По году (убыв.)</option>
+                <option value="year_asc">По году (возр.)</option>
+                <option value="title_asc">По названию (А-Я)</option>
+                <option value="title_desc">По названию (Я-А)</option>
+              </select>
+            </div>
+
+            {/* Фильтр по жанрам */}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <FaFilter />
+                Жанры
+              </h3>
+              {allGenres.length === 0 ? (
+                <p className="text-gray-400 text-sm">Нет доступных жанров</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {allGenres.map((genre) => (
+                    <button
+                      key={genre}
+                      onClick={() => {
+                        if (selectedGenres.includes(genre)) {
+                          setSelectedGenres(selectedGenres.filter(g => g !== genre))
+                        } else {
+                          setSelectedGenres([...selectedGenres, genre])
+                        }
+                      }}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                        selectedGenres.includes(genre)
+                          ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                          : 'bg-dark-primary text-gray-300 hover:bg-gray-700'
+                      }`}
+                    >
+                      {genre}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Фильтр по рейтингу */}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <FaStar />
+                Минимальный рейтинг
+              </h3>
+              <input
+                type="range"
+                min="0"
+                max="10"
+                step="0.1"
+                value={minRating}
+                onChange={(e) => setMinRating(parseFloat(e.target.value))}
+                className="w-full"
+              />
+              <div className="text-white text-center mt-1">{minRating.toFixed(1)}</div>
+            </div>
+
+            {/* Фильтр по годам */}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-3">Годы выпуска</h3>
+              <div className="flex gap-4">
+                <div>
+                  <label className="text-white text-sm">От</label>
+                  <input
+                    type="number"
+                    value={yearRange[0]}
+                    onChange={(e) => setYearRange([parseInt(e.target.value), yearRange[1]])}
+                    className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
                   />
                 </div>
-                <div className="p-4">
-                  <h2 className="text-lg font-semibold text-white mb-2">{movie.title}</h2>
-                  <p className="text-gray-400 text-sm line-clamp-2">{movie.description}</p>
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="text-yellow-500">{movie.rating.toFixed(1)}</span>
-                    <span className="text-gray-400 text-sm">{new Date(movie.release_date).getFullYear()}</span>
-                  </div>
-                </div>
-              </Link>
-            )
-          ))}
-        </div>
-      )}
-
-      <div className="flex gap-8 mt-8">
-        <div className="flex-1">
-          {/* Панель фильтров */}
-          <div className="w-80 bg-dark-secondary p-6 rounded-lg h-fit">
-            <div className="space-y-6">
-              {/* Сортировка */}
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                  <FaSort />
-                  Сортировка
-                </h3>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
-                >
-                  <option value="rating_desc">По рейтингу (убыв.)</option>
-                  <option value="rating_asc">По рейтингу (возр.)</option>
-                  <option value="year_desc">По году (убыв.)</option>
-                  <option value="year_asc">По году (возр.)</option>
-                  <option value="title_asc">По названию (А-Я)</option>
-                  <option value="title_desc">По названию (Я-А)</option>
-                </select>
-              </div>
-
-              {/* Фильтр по жанрам */}
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                  <FaFilter />
-                  Жанры
-                </h3>
-                {allGenres.length === 0 ? (
-                  <p className="text-gray-400 text-sm">Нет доступных жанров</p>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {allGenres.map((genre) => (
-                      <button
-                        key={genre}
-                        onClick={() => {
-                          if (selectedGenres.includes(genre)) {
-                            setSelectedGenres(selectedGenres.filter(g => g !== genre))
-                          } else {
-                            setSelectedGenres([...selectedGenres, genre])
-                          }
-                        }}
-                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                          selectedGenres.includes(genre)
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                            : 'bg-dark-primary text-gray-300 hover:bg-gray-700'
-                        }`}
-                      >
-                        {genre}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Фильтр по рейтингу */}
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                  <FaStar />
-                  Минимальный рейтинг
-                </h3>
-                <input
-                  type="range"
-                  min="0"
-                  max="10"
-                  step="0.1"
-                  value={minRating}
-                  onChange={(e) => setMinRating(parseFloat(e.target.value))}
-                  className="w-full"
-                />
-                <div className="text-white text-center mt-1">{minRating.toFixed(1)}</div>
-              </div>
-
-              {/* Фильтр по годам */}
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-3">Годы выпуска</h3>
-                <div className="flex gap-4">
-                  <div>
-                    <label className="text-white text-sm">От</label>
-                    <input
-                      type="number"
-                      value={yearRange[0]}
-                      onChange={(e) => setYearRange([parseInt(e.target.value), yearRange[1]])}
-                      className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-white text-sm">До</label>
-                    <input
-                      type="number"
-                      value={yearRange[1]}
-                      onChange={(e) => setYearRange([yearRange[0], parseInt(e.target.value)])}
-                      className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
-                    />
-                  </div>
+                <div>
+                  <label className="text-white text-sm">До</label>
+                  <input
+                    type="number"
+                    value={yearRange[1]}
+                    onChange={(e) => setYearRange([yearRange[0], parseInt(e.target.value)])}
+                    className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
+                  />
                 </div>
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Список фильмов */}
+        <div className="flex-1">
+          {!filteredAndSortedMovies || filteredAndSortedMovies.length === 0 ? (
+            <div className="text-center text-white">Фильмы не найдены</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredAndSortedMovies.map((movie) => (
+                movie && (
+                  <Link
+                    key={movie.movie_id}
+                    to={`/movies/${movie.movie_id}`}
+                    className="bg-dark-secondary rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+                  >
+                    <div className="aspect-[2/3] relative">
+                      <img
+                        src={movie.poster}
+                        alt={movie.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h2 className="text-lg font-semibold text-white mb-2">{movie.title}</h2>
+                      <p className="text-gray-400 text-sm line-clamp-2">{movie.description}</p>
+                      <div className="mt-2 flex items-center justify-between">
+                        <span className="text-yellow-500">{movie.rating.toFixed(1)}</span>
+                        <span className="text-gray-400 text-sm">{new Date(movie.release_date).getFullYear()}</span>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
