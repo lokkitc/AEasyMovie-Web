@@ -230,7 +230,10 @@ export default function MovieDetails() {
             'Accept': 'application/json',
           },
           withCredentials: true,
-          timeout: 30000, // 30 секунд таймаут
+          timeout: 30000,
+          validateStatus: (status) => {
+            return status >= 200 && status < 500
+          }
         })
         return response.data
       } catch (error: any) {
@@ -242,6 +245,9 @@ export default function MovieDetails() {
         }
         if (error.response?.status === 415) {
           throw new Error('Неподдерживаемый формат файла')
+        }
+        if (error.message.includes('Mixed Content')) {
+          throw new Error('Ошибка безопасности. Пожалуйста, используйте HTTPS.')
         }
         throw error
       }

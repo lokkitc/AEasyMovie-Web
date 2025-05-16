@@ -11,8 +11,13 @@ export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
-  withCredentials: true
+  withCredentials: true,
+  timeout: 30000,
+  validateStatus: (status) => {
+    return status >= 200 && status < 500
+  }
 })
 
 interface JwtPayload {
@@ -27,6 +32,12 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+    
+    // Проверяем, что URL использует HTTPS
+    if (config.url && !config.url.startsWith('https://')) {
+      config.url = config.url.replace('http://', 'https://')
+    }
+    
     return config
   },
   (error) => {
@@ -54,6 +65,12 @@ api.interceptors.response.use(
           throw new Error(error.response.data?.detail || 'Произошла ошибка')
       }
     } else if (error.request) {
+      if (error.code === 'ERR_NETWORK') {
+        throw new Error('Ошибка сети. Проверьте подключение к интернету.')
+      }
+      if (error.message.includes('Mixed Content')) {
+        throw new Error('Ошибка безопасности. Пожалуйста, используйте HTTPS.')
+      }
       throw new Error('Нет ответа от сервера')
     } else {
       throw new Error('Ошибка при выполнении запроса')
