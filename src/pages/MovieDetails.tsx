@@ -61,6 +61,13 @@ interface User {
   money: number;
 }
 
+interface CreateEpisodeForm {
+  title: string;
+  episode_number: number;
+  video: File | null;
+  cost: number;
+}
+
 export default function MovieDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -76,6 +83,14 @@ export default function MovieDetails() {
   const [newComment, setNewComment] = useState('')
   const [rating, setRating] = useState(5)
   const [hoveredRating, setHoveredRating] = useState(0)
+  const [showCreateEpisodeModal, setShowCreateEpisodeModal] = useState(false)
+  const [createEpisodeForm, setCreateEpisodeForm] = useState<CreateEpisodeForm>({
+    title: '',
+    episode_number: 1,
+    video: null,
+    cost: 0
+  })
+  const [isCreatingEpisode, setIsCreatingEpisode] = useState(false)
 
   const { data: movie, isLoading: movieLoading, error: movieError } = useQuery<Movie>({
     queryKey: ['movie', id],
@@ -203,6 +218,31 @@ export default function MovieDetails() {
         navigate('/login')
       }
       toast.error(error.message || 'Ошибка при добавлении комментария')
+    }
+  })
+
+  const createEpisodeMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const response = await api.post('/episodes', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['episodes', id] })
+      toast.success('Эпизод успешно создан!')
+      setShowCreateEpisodeModal(false)
+      setCreateEpisodeForm({
+        title: '',
+        episode_number: 1,
+        video: null,
+        cost: 0
+      })
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.detail || 'Ошибка при создании эпизода')
     }
   })
 
@@ -379,6 +419,28 @@ export default function MovieDetails() {
       return
     }
     createCommentMutation.mutate()
+  }
+
+  const handleCreateEpisode = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!createEpisodeForm.video) {
+      toast.error('Пожалуйста, выберите видеофайл')
+      return
+    }
+
+    setIsCreatingEpisode(true)
+    const formData = new FormData()
+    formData.append('movie_id', id || '')
+    formData.append('title', createEpisodeForm.title)
+    formData.append('episode_number', createEpisodeForm.episode_number.toString())
+    formData.append('video', createEpisodeForm.video)
+    formData.append('cost', createEpisodeForm.cost.toString())
+
+    try {
+      await createEpisodeMutation.mutateAsync(formData)
+    } finally {
+      setIsCreatingEpisode(false)
+    }
   }
 
   if (movieLoading || commentsLoading) {
@@ -598,7 +660,17 @@ export default function MovieDetails() {
         )}
       </div>
           <div className="mt-8">
-            <h2 className="text-xl sm:text-2xl font-bold mb-6 text-white">Эпизоды</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-white">Эпизоды</h2>
+              {canEditMovie && (
+                <button
+                  onClick={() => setShowCreateEpisodeModal(true)}
+                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                >
+                  Добавить эпизод
+                </button>
+              )}
+            </div>
         {episodesLoading ? (
           <div className="text-center text-white">Загрузка эпизодов...</div>
         ) : episodesError ? (
@@ -890,6 +962,76 @@ export default function MovieDetails() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Модальное окно создания эпизода */}
+      {showCreateEpisodeModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-dark-secondary rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-white mb-4">Создание нового эпизода</h3>
+            <form onSubmit={handleCreateEpisode} className="space-y-4">
+              <div>
+                <label className="block text-white mb-2">Название эпизода</label>
+                <input
+                  type="text"
+                  value={createEpisodeForm.title}
+                  onChange={(e) => setCreateEpisodeForm(prev => ({ ...prev, title: e.target.value }))}
+                  className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-white mb-2">Номер эпизода</label>
+                <input
+                  type="number"
+                  value={createEpisodeForm.episode_number}
+                  onChange={(e) => setCreateEpisodeForm(prev => ({ ...prev, episode_number: parseInt(e.target.value) }))}
+                  className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
+                  min="1"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-white mb-2">Видеофайл</label>
+                <input
+                  type="file"
+                  accept="video/*"
+                  onChange={(e) => setCreateEpisodeForm(prev => ({ ...prev, video: e.target.files?.[0] || null }))}
+                  className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-white mb-2">Стоимость (монеты)</label>
+                <input
+                  type="number"
+                  value={createEpisodeForm.cost}
+                  onChange={(e) => setCreateEpisodeForm(prev => ({ ...prev, cost: parseFloat(e.target.value) }))}
+                  className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
+                  min="0"
+                  step="0.1"
+                  required
+                />
+              </div>
+              <div className="flex gap-4 mt-6">
+                <button
+                  type="button"
+                  className="flex-1 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+                  onClick={() => setShowCreateEpisodeModal(false)}
+                >
+                  Отмена
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                  disabled={isCreatingEpisode}
+                >
+                  {isCreatingEpisode ? 'Создание...' : 'Создать эпизод'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
