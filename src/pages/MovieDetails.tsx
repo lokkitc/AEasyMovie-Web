@@ -226,7 +226,9 @@ export default function MovieDetails() {
       const response = await api.post('/episodes', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Accept': 'application/json',
         },
+        withCredentials: true
       })
       return response.data
     },
@@ -242,7 +244,11 @@ export default function MovieDetails() {
       })
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Ошибка при создании эпизода')
+      if (error.message === 'Нет ответа от сервера') {
+        toast.error('Ошибка соединения с сервером. Проверьте подключение к интернету.')
+      } else {
+        toast.error(error.response?.data?.detail || 'Ошибка при создании эпизода')
+      }
     }
   })
 
@@ -428,9 +434,14 @@ export default function MovieDetails() {
       return
     }
 
+    if (!id) {
+      toast.error('ID фильма не найден')
+      return
+    }
+
     setIsCreatingEpisode(true)
     const formData = new FormData()
-    formData.append('movie_id', id || '')
+    formData.append('movie_id', id)
     formData.append('title', createEpisodeForm.title)
     formData.append('episode_number', createEpisodeForm.episode_number.toString())
     formData.append('video', createEpisodeForm.video)
@@ -438,6 +449,8 @@ export default function MovieDetails() {
 
     try {
       await createEpisodeMutation.mutateAsync(formData)
+    } catch (error) {
+      console.error('Error creating episode:', error)
     } finally {
       setIsCreatingEpisode(false)
     }
@@ -986,8 +999,13 @@ export default function MovieDetails() {
                 <label className="block text-white mb-2">Номер эпизода</label>
                 <input
                   type="number"
-                  value={createEpisodeForm.episode_number}
-                  onChange={(e) => setCreateEpisodeForm(prev => ({ ...prev, episode_number: parseInt(e.target.value) }))}
+                  value={createEpisodeForm.episode_number || ''}
+                  onChange={(e) => {
+                    const value = e.target.value === '' ? '' : parseInt(e.target.value)
+                    if (!isNaN(value as number)) {
+                      setCreateEpisodeForm(prev => ({ ...prev, episode_number: value as number }))
+                    }
+                  }}
                   className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
                   min="1"
                   required
@@ -1007,8 +1025,13 @@ export default function MovieDetails() {
                 <label className="block text-white mb-2">Стоимость (монеты)</label>
                 <input
                   type="number"
-                  value={createEpisodeForm.cost}
-                  onChange={(e) => setCreateEpisodeForm(prev => ({ ...prev, cost: parseFloat(e.target.value) }))}
+                  value={createEpisodeForm.cost || ''}
+                  onChange={(e) => {
+                    const value = e.target.value === '' ? '' : parseFloat(e.target.value)
+                    if (!isNaN(value as number)) {
+                      setCreateEpisodeForm(prev => ({ ...prev, cost: value as number }))
+                    }
+                  }}
                   className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
                   min="0"
                   step="0.1"
