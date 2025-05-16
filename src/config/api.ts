@@ -11,6 +11,7 @@ export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
   withCredentials: true
 })
@@ -26,6 +27,10 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+    }
+    // Для multipart/form-data запросов не устанавливаем Content-Type
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type']
     }
     return config
   },
@@ -43,7 +48,7 @@ api.interceptors.response.use(
         case 401:
           localStorage.removeItem('token')
           window.dispatchEvent(new CustomEvent('tokenExpired'))
-          break
+          throw new Error('Требуется авторизация')
         case 403:
           throw new Error('Доступ запрещен')
         case 429:
@@ -54,6 +59,9 @@ api.interceptors.response.use(
           throw new Error(error.response.data?.detail || 'Произошла ошибка')
       }
     } else if (error.request) {
+      if (error.message.includes('Mixed Content')) {
+        throw new Error('Ошибка безопасности. Пожалуйста, используйте HTTPS.')
+      }
       throw new Error('Нет ответа от сервера')
     } else {
       throw new Error('Ошибка при выполнении запроса')
