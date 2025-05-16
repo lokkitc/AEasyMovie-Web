@@ -224,21 +224,27 @@ export default function MovieDetails() {
   const createEpisodeMutation = useMutation({
     mutationFn: async (formData: FormData) => {
       try {
+        const token = localStorage.getItem('token')
+        if (!token) {
+          throw new Error('Требуется авторизация')
+        }
+
         const response = await api.post('/episodes', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`,
           },
           withCredentials: true,
           timeout: 30000,
-          validateStatus: (status) => {
-            return status >= 200 && status < 500
-          }
         })
         return response.data
       } catch (error: any) {
         if (error.code === 'ERR_NETWORK') {
           throw new Error('Ошибка сети. Проверьте подключение к интернету.')
+        }
+        if (error.response?.status === 401) {
+          throw new Error('Требуется авторизация')
         }
         if (error.response?.status === 413) {
           throw new Error('Размер файла слишком большой')
@@ -246,8 +252,8 @@ export default function MovieDetails() {
         if (error.response?.status === 415) {
           throw new Error('Неподдерживаемый формат файла')
         }
-        if (error.message.includes('Mixed Content')) {
-          throw new Error('Ошибка безопасности. Пожалуйста, используйте HTTPS.')
+        if (error.response?.status === 403) {
+          throw new Error('У вас нет прав для создания эпизода')
         }
         throw error
       }
@@ -268,6 +274,9 @@ export default function MovieDetails() {
         toast.error('Ошибка соединения с сервером. Проверьте подключение к интернету.')
       } else if (error.message.includes('Mixed Content')) {
         toast.error('Ошибка безопасности. Пожалуйста, используйте HTTPS.')
+      } else if (error.message === 'Требуется авторизация') {
+        toast.error('Требуется авторизация')
+        navigate('/login')
       } else {
         toast.error(error.message || 'Ошибка при создании эпизода')
       }
@@ -452,6 +461,14 @@ export default function MovieDetails() {
 
   const handleCreateEpisode = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    const token = localStorage.getItem('token')
+    if (!token) {
+      toast.error('Требуется авторизация')
+      navigate('/login')
+      return
+    }
+
     if (!createEpisodeForm.video) {
       toast.error('Пожалуйста, выберите видеофайл')
       return
