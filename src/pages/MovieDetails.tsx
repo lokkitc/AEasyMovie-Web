@@ -223,14 +223,28 @@ export default function MovieDetails() {
 
   const createEpisodeMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      const response = await api.post('/episodes', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Accept': 'application/json',
-        },
-        withCredentials: true
-      })
-      return response.data
+      try {
+        const response = await api.post('/episodes', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Accept': 'application/json',
+          },
+          withCredentials: true,
+          timeout: 30000, // 30 секунд таймаут
+        })
+        return response.data
+      } catch (error: any) {
+        if (error.code === 'ERR_NETWORK') {
+          throw new Error('Ошибка сети. Проверьте подключение к интернету.')
+        }
+        if (error.response?.status === 413) {
+          throw new Error('Размер файла слишком большой')
+        }
+        if (error.response?.status === 415) {
+          throw new Error('Неподдерживаемый формат файла')
+        }
+        throw error
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['episodes', id] })
@@ -246,9 +260,12 @@ export default function MovieDetails() {
     onError: (error: any) => {
       if (error.message === 'Нет ответа от сервера') {
         toast.error('Ошибка соединения с сервером. Проверьте подключение к интернету.')
+      } else if (error.message.includes('Mixed Content')) {
+        toast.error('Ошибка безопасности. Пожалуйста, используйте HTTPS.')
       } else {
-        toast.error(error.response?.data?.detail || 'Ошибка при создании эпизода')
+        toast.error(error.message || 'Ошибка при создании эпизода')
       }
+      console.error('Error creating episode:', error)
     }
   })
 
@@ -436,6 +453,19 @@ export default function MovieDetails() {
 
     if (!id) {
       toast.error('ID фильма не найден')
+      return
+    }
+
+    // Проверка размера файла (максимум 100MB)
+    if (createEpisodeForm.video.size > 100 * 1024 * 1024) {
+      toast.error('Размер файла не должен превышать 100MB')
+      return
+    }
+
+    // Проверка формата файла
+    const allowedTypes = ['video/mp4', 'video/webm', 'video/ogg']
+    if (!allowedTypes.includes(createEpisodeForm.video.type)) {
+      toast.error('Поддерживаются только форматы MP4, WebM и OGG')
       return
     }
 
@@ -993,6 +1023,7 @@ export default function MovieDetails() {
                   onChange={(e) => setCreateEpisodeForm(prev => ({ ...prev, title: e.target.value }))}
                   className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
                   required
+                  maxLength={100}
                 />
               </div>
               <div>
@@ -1012,14 +1043,32 @@ export default function MovieDetails() {
                 />
               </div>
               <div>
-                <label className="block text-white mb-2">Видеофайл</label>
+                <label className="block text-white mb-2">Видеофайл (макс. 100MB)</label>
                 <input
                   type="file"
-                  accept="video/*"
-                  onChange={(e) => setCreateEpisodeForm(prev => ({ ...prev, video: e.target.files?.[0] || null }))}
+                  accept="video/mp4,video/webm,video/ogg"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) {
+                      if (file.size > 100 * 1024 * 1024) {
+                        toast.error('Размер файла не должен превышать 100MB')
+                        e.target.value = ''
+                        return
+                      }
+                      if (!['video/mp4', 'video/webm', 'video/ogg'].includes(file.type)) {
+                        toast.error('Поддерживаются только форматы MP4, WebM и OGG')
+                        e.target.value = ''
+                        return
+                      }
+                      setCreateEpisodeForm(prev => ({ ...prev, video: file }))
+                    }
+                  }}
                   className="w-full p-2 rounded bg-dark-primary text-white border border-gray-600"
                   required
                 />
+                <p className="text-sm text-gray-400 mt-1">
+                  Поддерживаемые форматы: MP4, WebM, OGG
+                </p>
               </div>
               <div>
                 <label className="block text-white mb-2">Стоимость (монеты)</label>
