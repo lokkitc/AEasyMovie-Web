@@ -12,8 +12,12 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   },
-  withCredentials: true
+  withCredentials: true,
+  timeout: 30000,
 })
 
 interface JwtPayload {
@@ -61,6 +65,9 @@ api.interceptors.response.use(
     } else if (error.request) {
       if (error.message.includes('Mixed Content')) {
         throw new Error('Ошибка безопасности. Пожалуйста, используйте HTTPS.')
+      }
+      if (error.code === 'ECONNABORTED') {
+        throw new Error('Превышено время ожидания ответа от сервера')
       }
       throw new Error('Нет ответа от сервера')
     } else {
